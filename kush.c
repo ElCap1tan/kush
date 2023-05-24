@@ -102,7 +102,34 @@ char **kush_tokenize(char *user_in) {
 
     token = strtok(user_in, KUSH_TOK_DELIM);
     while (token != NULL) {
-        tokens[pos] = token;
+        if (strncmp(token, "\"", 1) == 0 || strncmp(token, "'", 1) == 0) {
+            char quote_type = token[0];
+            char *start = token + 1;
+            while (token != NULL
+                   && (
+                           (quote_type == '"' && strcmp(&token[strlen(token) - 1], "\"") != 0)
+                           ||
+                           (quote_type == '\'' && strcmp(&token[strlen(token) - 1], "'") != 0)
+                   )) {
+                token[strlen(token)] = ' ';
+                token = strtok(NULL, KUSH_TOK_DELIM);
+            }
+
+            unsigned long last = strlen(start) - 1;
+            if (quote_type == '"' && strcmp(&start[last], "\"") == 0
+                || quote_type == '\'' && strcmp(&start[last], "'") == 0) {
+                start[last] = '\0';
+                tokens[pos] = start;
+            } else {
+                fprintf(stderr, "kush: Missing closing ");
+                if (quote_type == '"') fprintf(stderr, "'\"'. Input invalid.\n");
+                else if (quote_type == '\'') fprintf(stderr, "\"'\". Input invalid.\n");
+                return NULL;
+            }
+        } else {
+            tokens[pos] = token;
+        }
+
         pos++;
 
         if (pos >= buff_size) {
@@ -219,6 +246,8 @@ void kush_loop() {
 
         user_in = kush_read_line();
         tokens = kush_tokenize(user_in);
+
+        if (tokens == NULL) continue;
 
         exit = kush_run(tokens);
 
