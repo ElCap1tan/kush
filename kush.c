@@ -36,6 +36,7 @@
 #define KUSH_TOK_DELIM " \t\r\n\a"
 
 int printed_prompt = 0;
+int prog_running = 0;
 
 void kush_print_prompt() {
     int errcode;
@@ -63,7 +64,10 @@ void kush_print_prompt() {
 
 void sig_handler(int signum) {
     if (signum == SIGINT) {
-        puts("\nTo exit kush type 'exit'.");
+
+        if (!prog_running) puts("\nTo exit kush type 'exit'.");
+        else puts("");
+
         printed_prompt = 0;
         kush_print_prompt();
         printed_prompt = 1;
@@ -187,7 +191,9 @@ int kush_exec(char **args) {
         exit(EXIT_FAILURE);
     } else if (pid < 0) perror("kush: Error forking a child process");
     else {
+        prog_running = 1;
         waitpid(pid, &status, 0);
+        prog_running = 0;
     }
 
     return 0;
