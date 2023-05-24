@@ -31,9 +31,9 @@
                     "|_|\\_\\\\__,_|___/_| |_|\n" \
                     "       by Yannic Wehner\n"
 
-#define PROMPT "[%s@%s:%s]> "
-#define MSH_TOK_BUFF_SIZE 64
-#define MSH_TOK_DELIM " \t\r\n\a"
+#define KUSH_PROMPT "[%s@%s:%s]> "
+#define KUSH_TOK_BUFF_SIZE 64
+#define KUSH_TOK_DELIM " \t\r\n\a"
 
 int printed_prompt = 0;
 
@@ -55,7 +55,7 @@ void kush_print_prompt() {
             errcode = gethostname(hostname, sizeof(hostname));
             if (errcode > 0) strcpy(hostname, "UNKNOWN");
 
-            printf(PROMPT, username, hostname, cwd);
+            printf(KUSH_PROMPT, username, hostname, cwd);
             fflush(stdout);
         } else exit(EXIT_FAILURE);
     }
@@ -86,7 +86,7 @@ char *kush_read_line() {
 }
 
 char **kush_tokenize(char *user_in) {
-    int buff_size = MSH_TOK_BUFF_SIZE;
+    int buff_size = KUSH_TOK_BUFF_SIZE;
     int pos = 0;
     char **tokens = malloc(buff_size * sizeof(char *));
     char *token;
@@ -96,13 +96,13 @@ char **kush_tokenize(char *user_in) {
         exit(EXIT_FAILURE);
     }
 
-    token = strtok(user_in, MSH_TOK_DELIM);
+    token = strtok(user_in, KUSH_TOK_DELIM);
     while (token != NULL) {
         tokens[pos] = token;
         pos++;
 
         if (pos >= buff_size) {
-            buff_size += MSH_TOK_BUFF_SIZE;
+            buff_size += KUSH_TOK_BUFF_SIZE;
             tokens = realloc(tokens, buff_size * sizeof(char *)); // NOLINT(bugprone-suspicious-realloc-usage)
             if (!tokens) {
                 fprintf(stderr, "kush: Token allocation error");
@@ -110,7 +110,7 @@ char **kush_tokenize(char *user_in) {
             }
         }
 
-        token = strtok(NULL, MSH_TOK_DELIM);
+        token = strtok(NULL, KUSH_TOK_DELIM);
     }
 
     tokens[pos] = NULL;
@@ -223,7 +223,7 @@ void kush_loop() {
 
 int main() {
     signal(SIGINT, sig_handler);
-    puts(LOGO_ART);
+    kush_help(NULL);
     kush_loop();
     return EXIT_SUCCESS;
 }
