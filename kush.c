@@ -16,13 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <sys/wait.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <limits.h>
-#include <stdlib.h>
 #include <pwd.h>
-#include <string.h>
 
 #define LOGO_ART    "Welcome to\n" \
                     "  _              _     \n" \
